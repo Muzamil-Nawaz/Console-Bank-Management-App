@@ -1,0 +1,405 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package bankmanagement;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.Scanner;
+
+/**
+ *
+ * @author ADMIN
+ */
+public class BankManagement {
+    static Scanner sc = new Scanner(System.in);
+    static int choice =0;
+    static long id;
+    public static ArrayList<Customer> customers = new ArrayList<>();
+    public static HashMap<Long,DebitCard> debitcards = new HashMap<>();
+    public static HashMap<Long,CreditCard> creditcards = new HashMap<>();
+    public static HashMap<Long,SavingsAccount> savingaccounts = new HashMap<>();
+    public static HashMap<Long,InvestmentAccount> investmentaccounts = new HashMap<>();
+    public static HashMap<Long,CurrentAccount> currentaccounts = new HashMap<>();
+    public static HashMap<Long,Period> periods = new HashMap<>();
+    public static void main(String[] args) {
+        System.out.println("");
+        mainMenu();
+        
+    }
+    public static  void mainMenu(){
+        Scanner sc = new Scanner(System.in);
+        
+        do{
+            System.out.println("1- create a customer");
+            System.out.println("2- list customers");
+            System.out.println("3- Customer options");
+            System.out.println("4- Select a card");
+            System.out.println("5- Advace a period");
+            System.out.println("6 - Quit");
+            System.out.print("   Your Choice:");
+            choice = sc.nextInt();
+            if(choice ==1)
+                insertCustomer();
+            else if(choice ==2){
+                for (int i = 0; i < customers.size(); i++) {
+                    System.out.println(customers.get(i));
+                }
+            }
+            else if(choice ==3){
+                customerOptions();
+            }
+            else if(choice ==4)
+                cardMenu();
+            else if(choice ==5)
+                advancePeriod();
+            else
+                System.out.println("INVALID CHOICE.");
+            
+        }while(choice!=1);
+        System.out.println("Good Bye Sir :)");
+        System.exit(0);
+        
+    }
+    public static void advancePeriod(){
+        System.out.print("Enter customer id :");
+        long id = sc.nextLong();
+        System.out.print("Enter new period in years");
+        int p =sc.nextInt();
+        periods.put(id, new Period(p));
+        System.out.println("Period exceeded.");
+        mainMenu();
+    }
+    public static void disableCard(){
+        System.out.println("1 - disable debit\n2 - diable credit");
+        choice = sc.nextInt();
+        if(choice == 1){
+            System.out.println("Enter customer id :");
+            long id =sc.nextLong();
+            long l =0;
+            if(debitcards.remove(id)!=null)
+                System.out.println("Debit Card Disabled Successfully.");
+            else 
+                System.out.println("Invalid Id found.");
+        }
+        if(choice == 2){
+            System.out.println("Enter customer id :");
+            long id = sc.nextLong();
+            if(creditcards.remove(id)!=null)
+                System.out.println("Debit Card Disabled Successfully.");
+            else 
+                System.out.println("Invalid Id found.");
+        }
+            
+    }
+    
+    public static void customerOptions(){
+        do{
+            System.out.println("1 - Deactivate\n2 - Edit customer data\n3 - create card\n4 - listing cards\n5- change card data\n6 - disable card\n7 -create account");
+            System.out.print("   Your Choice:");
+            choice = sc.nextInt();
+            if(choice ==1){
+                System.out.println("Enter customer id to deactivate :");
+                long l = sc.nextLong();
+                for (int i = 0; i < customers.size(); i++) {
+                    if(customers.get(i).customerId==l)
+                        customers.remove(i);
+                }
+                System.out.println("Customer deactivated successfully.");
+            }
+            else if(choice ==2)
+                editCustomer();
+            else if(choice ==3)
+                cardMenu();
+            else if(choice ==4){
+                System.out.println("Debit cards :");
+                Iterator it = debitcards.entrySet().iterator();
+                while(it.hasNext()){
+                    System.out.println(it.next());
+                }
+                System.out.println("Credit cards :");
+                it = creditcards.entrySet().iterator();
+                while(it.hasNext()){
+                    System.out.println(it.next());
+                }
+            }
+            else if(choice ==5){
+                System.out.println("Sorry Card data is completely generated by computer, you can not change it.");;
+            }
+            else if(choice ==6)
+                disableCard();
+            else if(choice ==7)
+                accountMenu();
+            else
+                System.out.println("Invalid choice.");
+            mainMenu();
+            
+        }while(choice!=1 && choice != 2);
+        System.out.println("Good Bye Sir :)");
+        System.exit(0);
+        
+    }
+    public static void editCustomer(){
+        System.out.print("Enter customer id to edit:");
+        long id = sc.nextLong();
+        int i=-1;
+        for (int j = 0; j < customers.size(); j++) {
+            if(customers.get(j).customerId ==id)
+                i=j;
+                        
+        }
+        if(i!=-1){
+            System.out.print("Enter new name :");
+            String name = sc.next();
+            System.out.print("Enter new email :");
+            String email = sc.next();
+            System.out.print("Enter new profession:");
+            String prof = sc.next();
+            System.out.print("Enter new type :");
+            String type = sc.next();
+            String manager ="";
+            if(type.equalsIgnoreCase("regular"))
+                manager ="";
+            else if(type.equalsIgnoreCase("vip")){
+                System.out.print("Enter new Manager:");
+                manager = sc.next();
+            }
+            Customer c = new Customer(customers.get(i).customerId,name,email,prof,manager,type,customers.get(i).accountNo);
+            customers.set(i, c);
+            System.out.println("Customer edited successfully");
+        }
+        else{
+            System.out.println("Invalid Input.");
+            mainMenu();
+        }
+        
+    }
+    public static void insertCustomer(){
+        Random r = new Random();
+        long id = r.nextInt(1000000-100000)+100000;
+        System.out.println("Autogeneated Customer Id:"+id);
+        long accNo = r.nextInt(10000000-1000000)+100000;
+        System.out.println("Autogenerated Account no:"+accNo);
+        System.out.print("Enter Customer first name: ");
+        String name = sc.next();
+        System.out.print("Enter Customer e-mail :");
+        String email = sc.next();
+        System.out.print("Enter Customer profession :");
+        String profession = sc.next();
+        System.out.print("Enter Customer type(VIP or Regular) :");
+        String type = sc.next();
+        if(!type.equalsIgnoreCase("vip")&& !type.equalsIgnoreCase("regular")){
+            System.out.println("Invalid choice.Try again");
+            mainMenu();
+        }
+            
+        String manager="";
+        if(type.equalsIgnoreCase("vip")){
+            System.out.print("Enter manager name :");
+            manager = sc.next();
+        }
+        Customer c = new Customer(id,name,email,profession,manager,type,accNo);
+        customers.add(c);
+        currentaccounts.put(c.customerId, new CurrentAccount());
+        System.out.println("Customer Added Successfully.");
+        mainMenu();
+       
+            
+    }
+    
+    public static void cardMenu(){
+        do{
+            System.out.print("1 - Manage debit card of customer\n2 - Manage Credit card\n3 - Back to Customer menu\n4 - Quit\nYour Choice:");
+            choice = sc.nextInt();
+            if(choice ==1)
+                manageDebit();
+            else if(choice ==2)
+                manageCredit();
+            else if(choice==3)
+                mainMenu();
+            else if(choice ==4){
+                System.out.println("Thank you for using our services.");
+                System.exit(choice);
+            }
+            else
+                System.out.println("Invalid choice.");
+            
+            
+        }while(choice!=4);
+        System.out.print("Thank you for using our services.");
+        System.exit(0);
+    }
+    public static void accountMenu(){
+        System.out.print("Enter Customer id :");
+        id = sc.nextLong();
+        int j=0;
+        for (int i = 0; i < customers.size(); i++) {
+            if(customers.get(i).customerId==id)
+                j=1;
+        }
+        if(j==0){
+            System.out.println("No customer exists with this id.");
+            mainMenu();
+        }
+        else{
+                       do{
+                System.out.println("1 - Add Savings account");
+                System.out.println("2 - Add Investments account");
+                System.out.println("3 - Deposit money");
+                System.out.println("4 - Withdraw money");
+                System.out.println("6 - Back to Card Menu");
+                System.out.println("7 - Quit");
+                System.out.println("    Your Choice:");
+                choice = sc.nextInt();
+                CreditCard cc = new CreditCard();
+                if(choice ==1)
+                    addSavings();
+                else if(choice == 2){
+                    addInvestment();
+                }
+                else if(choice ==3)
+                    cc.deposit();
+                else if(choice ==4)
+                    cc.withdraw();
+                else if(choice ==5)
+                    cc.transfer();
+                else if(choice ==6)
+                    cardMenu();
+                else
+                    System.out.println("Invalid choice.");
+            }while (choice !=7);
+            System.out.println("Thank you using our services.");
+            System.exit(0);
+            
+        }
+    }
+    public static void manageCredit(){
+        System.out.print("Enter id of customer :");
+        id = sc.nextLong();
+        int i =0;
+        for (int j = 0; j < customers.size(); j++) {
+            Customer c = customers.get(j);
+            if(c.customerId== id)
+                i=1;
+        }
+        if(i==0)
+            System.out.println("Customer doesn't exist.");
+        else{
+            do{
+                System.out.println("1 - Add Credit card");
+                System.out.println("2 - Check Balance");
+                System.out.println("3 - Deposit money");
+                System.out.println("4 - Withdraw money");
+                System.out.println("5 - Transfer money");
+                System.out.println("6 - Back to Card Menu");
+                System.out.println("7 - Quit");
+                System.out.print("    Your Choice:");
+                choice = sc.nextInt();
+                CreditCard cc = new CreditCard();
+                if(choice ==1)
+                    addCredit();
+                else if(choice == 2){ 
+                    cc.checkCustomerAndCurrentBalance(id);
+                }
+                else if(choice ==3)
+                    cc.deposit();
+                else if(choice ==4)
+                    cc.withdraw();
+                else if(choice ==5)
+                    cc.transfer();
+                else if(choice ==6)
+                    cardMenu();
+                else
+                    System.out.println("Invalid choice.");
+            }while (choice !=7);
+            System.out.println("Thank you using our services.");
+            System.exit(0);
+        }   
+    }
+    public static void manageDebit(){
+        System.out.print("Enter id of customer :");
+        id = sc.nextLong();
+        int i =0;
+        for (int j = 0; j < customers.size(); j++) {
+            Customer c = customers.get(j);
+            if(c.customerId== id)
+                i=1;
+        }
+        if(i==0)
+            System.out.println("Customer doesn't exist.");
+        else{
+            do{
+                System.out.println("1 - Add Debit card");
+                System.out.println("2 - Check Balance");
+                System.out.println("3 - Deposit money");
+                System.out.println("4 - Withdraw money");
+                System.out.println("5 - Transfer money");
+                System.out.println("6 - Back to Card Menu");
+                System.out.println("7 - Quit");
+                System.out.print("    Your Choice:");
+                choice = sc.nextInt();
+                DebitCard dc = new DebitCard();
+                if(choice ==1)
+                    addDebit();
+                else if(choice == 2){
+                    
+                    dc.checkCustomerAndCurrentBalance(id);
+                }
+                else if(choice ==3)
+                    dc.deposit();
+                else if(choice ==4)
+                    dc.withdraw();
+                else if(choice ==5)
+                    dc.transfer();
+                else if(choice ==6)
+                    cardMenu();
+                else
+                    System.out.println("Invalid choice.");
+            }while (choice !=7);
+            System.out.println("Thank you using our services.");
+            System.exit(0);
+        }   
+    }
+    public static void addDebit(){
+        Random r = new Random();
+        long number = r.nextInt(10000000-100000)+100000;
+        System.out.print("Autogenerated Card number :"+number);
+        debitcards.put(id, new DebitCard(number,id));
+        System.out.print("Enter balance :");
+        long bal = sc.nextLong();
+        debitcards.get(id).balance = bal;
+        System.out.println("Card added Successfully and balance added Successfully.");
+        
+    }
+    public static void addCredit(){
+        Random r = new Random();
+        long number = r.nextInt(10000000-1000000)+1000000;
+        System.out.println("Autogenerated card number :"+number);
+        System.out.println("Enter monthly boundry :");
+        double mb = sc.nextDouble();
+        creditcards.put(id, new CreditCard(number,id,mb));
+        
+    }
+    public static void addSavings(){
+        Random r = new Random();
+        long number = r.nextInt(10000000-1000000)+1000000;
+        System.out.println("Autogenerated account number :"+number);
+        System.out.println("Enter interest for account:");
+        double interest = sc.nextDouble();
+        savingaccounts.put(id, new SavingsAccount(number,interest));
+        
+    }
+    public static void addInvestment(){
+        Random r = new Random();
+        long number = r.nextInt(10000000-1000000)+1000000;
+        System.out.println("Autogenerated account number :"+number);
+        System.out.println("Enter cost for account:");
+        double interest = sc.nextDouble();
+        investmentaccounts.put(id, new InvestmentAccount(number,interest));
+        
+    }
+}
